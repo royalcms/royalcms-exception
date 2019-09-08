@@ -3,9 +3,13 @@
 namespace Royalcms\Component\Exception;
 
 use Exception;
+use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Foundation\Exceptions\WhoopsHandler;
 use Psr\Log\LoggerInterface;
 use Royalcms\Component\Http\Response;
 use Royalcms\Component\Auth\Access\UnauthorizedException;
+use Symfony\Component\Debug\Exception\FlattenException;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Console\Application as ConsoleApplication;
 use Symfony\Component\Debug\ExceptionHandler as SymfonyExceptionHandler;
@@ -13,6 +17,8 @@ use Royalcms\Component\Contracts\Debug\ExceptionHandler as ExceptionHandlerContr
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use ReflectionFunction;
 use Closure;
+use Whoops\Handler\HandlerInterface;
+use Whoops\Run as Whoops;
 
 class Handler implements ExceptionHandlerContract
 {
@@ -178,8 +184,75 @@ class Handler implements ExceptionHandlerContract
         if (isset($royalcms['exception.display'])) {
             return $royalcms['exception.display']->displayException($e);
         } else {
-            return (new SymfonyExceptionHandler(config('system.debug')))->createResponse($e);
+//            return (new SymfonyExceptionHandler(config('system.debug')))->createResponse($e);
+            return SymfonyResponse::create(
+                $this->renderExceptionContent($e),
+                $this->isHttpException($e) ? $e->getStatusCode() : 500,
+                $this->isHttpException($e) ? $e->getHeaders() : []
+            );
         }
+    }
+
+    /**
+     * Get the response content for the given exception.
+     *
+     * @param  \Exception  $e
+     * @return string
+     */
+    protected function renderExceptionContent(Exception $e)
+    {
+        try {
+            return config('system.debug') && class_exists(Whoops::class)
+                ? $this->renderExceptionWithWhoops($e)
+                : $this->renderExceptionWithSymfony($e, config('system.debug'));
+        } catch (Exception $e) {
+            return $this->renderExceptionWithSymfony($e, config('system.debug'));
+        }
+    }
+
+    /**
+     * Render an exception to a string using "Whoops".
+     *
+     * @param  \Exception  $e
+     * @return string
+     */
+    protected function renderExceptionWithWhoops(Exception $e)
+    {
+        return tap(new Whoops, function ($whoops) {
+            $whoops->appendHandler($this->whoopsHandler());
+
+            $whoops->writeToOutput(false);
+
+            $whoops->allowQuit(false);
+        })->handleException($e);
+    }
+
+    /**
+     * Get the Whoops handler for the application.
+     *
+     * @return \Whoops\Handler\Handler
+     */
+    protected function whoopsHandler()
+    {
+        try {
+            return app(HandlerInterface::class);
+        } catch (BindingResolutionException $e) {
+            return (new WhoopsHandler)->forDebug();
+        }
+    }
+
+    /**
+     * Render an exception to a string using Symfony.
+     *
+     * @param  \Exception  $e
+     * @param  bool  $debug
+     * @return string
+     */
+    protected function renderExceptionWithSymfony(Exception $e, $debug)
+    {
+        return (new SymfonyExceptionHandler($debug))->getHtml(
+            FlattenException::create($e)
+        );
     }
 
     /**
