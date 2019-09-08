@@ -40,13 +40,11 @@ class ExceptionServiceProvider extends ServiceProvider
 	 */
 	protected function registerHandler()
 	{
-		$this->royalcms['exception'] = $this->royalcms->singleton(function($royalcms)
-		{
+		$this->royalcms->singleton('exception', function($royalcms) {
 			return new HandlerExceptions($royalcms);
 		});
 
-        $this->royalcms['exception.display'] = $this->royalcms->singleton(function($royalcms)
-        {
+        $this->royalcms->singleton('exception.display', function($royalcms) {
             return new HandleDisplayExceptions($royalcms['exception.plain'], $royalcms['exception.debug']);
         });
 
@@ -60,8 +58,7 @@ class ExceptionServiceProvider extends ServiceProvider
 	 */
 	protected function registerPlainDisplayer()
 	{
-		$this->royalcms['exception.plain'] = $this->royalcms->singleton(function($royalcms)
-		{
+		$this->royalcms->singleton('exception.plain', function($royalcms) {
 			// If the application is running in a console environment, we will just always
 			// use the debug handler as there is no point in the console ever returning
 			// out HTML. This debug handler always returns JSON from the console env.
@@ -85,8 +82,7 @@ class ExceptionServiceProvider extends ServiceProvider
 	{
 		$this->registerWhoops();
 
-		$this->royalcms['exception.debug'] = $this->royalcms->singleton(function($royalcms)
-		{
+		$this->royalcms->singleton('exception.debug', function($royalcms) {
 			return new WhoopsDisplayer($royalcms['whoops'], $royalcms->runningInConsole());
 		});
 	}
@@ -100,8 +96,7 @@ class ExceptionServiceProvider extends ServiceProvider
 	{
 		$this->registerWhoopsHandler();
 
-		$this->royalcms['whoops'] = $this->royalcms->singleton(function($royalcms)
-		{
+		$this->royalcms->singleton('whoops', function($royalcms) {
 			// We will instruct Whoops to not exit after it displays the exception as it
 			// will otherwise run out before we can do anything else. We just want to
 			// let the framework go ahead and finish a request on this end instead.
@@ -122,8 +117,7 @@ class ExceptionServiceProvider extends ServiceProvider
 	{
 		if ($this->shouldReturnJson())
 		{
-			$this->royalcms['whoops.handler'] = $this->royalcms->singleton(function()
-			{
+			$this->royalcms->singleton('whoops.handler', function() {
                 return new JsonResponseHandler;
 			});
 		}
@@ -162,8 +156,7 @@ class ExceptionServiceProvider extends ServiceProvider
 	{
 		$me = $this;
 
-		$this->royalcms['whoops.handler'] = $this->royalcms->singleton(function() use ($me)
-		{
+		$this->royalcms->singleton('whoops.handler', function() use ($me) {
 			with($handler = new PrettyPageHandler)->setEditor('sublime');
 
 			// If the resource path exists, we will register the resource path with Whoops
