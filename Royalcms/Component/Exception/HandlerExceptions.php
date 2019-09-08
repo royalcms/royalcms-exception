@@ -166,7 +166,7 @@ class HandlerExceptions
 	 */
 	public function handleUncaughtException($exception)
 	{
-	    $this->handleException($exception)->send(); 
+	    $this->handleException($exception); //->send();
 	}
 
 	/**
