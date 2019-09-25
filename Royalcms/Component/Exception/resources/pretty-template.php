@@ -7,7 +7,6 @@
 * @var callable $e
 * @var callable $slug
 */
-event('exception.pretty_page_table_data', $v->tables);
 ?>
 <!DOCTYPE html>
 <html>
