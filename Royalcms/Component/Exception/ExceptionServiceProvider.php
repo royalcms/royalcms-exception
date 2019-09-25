@@ -2,8 +2,8 @@
 
 namespace Royalcms\Component\Exception;
 
-use Royalcms\Component\Whoops\Run;
-use Royalcms\Component\Whoops\Handler\JsonResponseHandler;
+use Whoops\Run;
+use Whoops\Handler\JsonResponseHandler;
 use Royalcms\Component\Support\ServiceProvider;
 
 class ExceptionServiceProvider extends ServiceProvider

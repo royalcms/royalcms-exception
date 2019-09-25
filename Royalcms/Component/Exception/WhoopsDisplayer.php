@@ -3,7 +3,7 @@
 namespace Royalcms\Component\Exception;
 
 use Exception;
-use Royalcms\Component\Whoops\Run;
+use Whoops\Run;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
@@ -13,7 +13,7 @@ class WhoopsDisplayer implements ExceptionDisplayerInterface
 	/**
 	 * The Whoops run instance.
 	 *
-	 * @var \Royalcms\Component\Whoops\Run
+	 * @var \Whoops\Run
 	 */
 	protected $whoops;
 
@@ -27,7 +27,7 @@ class WhoopsDisplayer implements ExceptionDisplayerInterface
 	/**
 	 * Create a new Whoops exception displayer.
 	 *
-	 * @param  \Royalcms\Component\Whoops\Run  $whoops
+	 * @param  \Whoops\Run  $whoops
 	 * @param  bool  $runningInConsole
 	 * @return void
 	 */

@@ -3,7 +3,7 @@
 namespace Royalcms\Component\Exception;
 
 
-use Royalcms\Component\Whoops\Handler\PrettyPageHandler as WhoopsHandler;
+use Whoops\Handler\PrettyPageHandler as WhoopsHandler;
 
 
 class PrettyPageHandler extends WhoopsHandler
